@@ -50,8 +50,7 @@ GROUP BY to_CHAR(ttc.fecha_transaccion,'MMYYYY')
     ,ttt.nombre_tptran_tarjeta
 ;
 
-/**/
---CASO 4
+/*CASO 4*/
 SELECT TO_CHAR(c.numrun, '999G999G999')||'-'||c.dvrun AS "RUN Cliente", 
     (c.pnombre)||' '||(c.snombre)||' '||(c.appaterno)
     ||' '||(c.apmaterno) AS "Nombre Cliente",
@@ -64,9 +63,14 @@ SELECT TO_CHAR(c.numrun, '999G999G999')||'-'||c.dvrun AS "RUN Cliente",
     WHEN NVL(SUM(ttc.monto_total_transaccion),0) > 15000000 THEN 'PLATINUM'
     END AS "Categorizacion del Cliente "
 FROM cliente c
-INNER JOIN tarjeta_cliente tc ON tc.numrun = c.numrun
-LEFT JOIN transacccio_tarjeta_client ttc ON ttc.nro.tarjeta = tc.nro_tarjeta
-GROUP BY c.numrun,c.dvrun ,c.pnombre, c.snombre, c.appaterno, c.apmaterno
+    /*recordar que es un iner join, trae todo lo que tenga un match*/
+    JOIN tarjeta_cliente tc ON tc.numrun = c.numrun
+    /*Para traer todos los cliente*/
+    LEFT JOIN transaccion_tarjeta_cliente ttc ON ttc.nro_tarjeta = tc.nro_tarjeta
+GROUP BY c.numrun, c.dvrun, c.pnombre, c.snombre, c.appaterno, c.apmaterno
 ORDER BY c.appaterno,"Compras/Avances/S.Avances" DESC
 ;
+select * from transaccion_tarjeta_cliente;
+select * from tarjeta_cliente;
 
+/*CASO 5*/
