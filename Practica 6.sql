@@ -1,4 +1,4 @@
---CASO 1
+u--CASO 1
 SELECT TO_CHAR(cli.numrun, '999G999G999')||'-'||cli.dvrun AS "RUN Cliente",
     INITCAP(cli.pnombre)||' '||INITCAP(cli.snombre)||' '||
     INITCAP(cli.appaterno)||' '||INITCAP(cli.apmaterno) AS "Nombre Cliente",
