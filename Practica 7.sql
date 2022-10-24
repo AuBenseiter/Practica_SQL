@@ -122,10 +122,15 @@ SELECT TO_CHAR(c.numrun, '999G999G999')||'-'||c.dvrun AS "Run Cliente",
         ELSE null END), '$999G999G999G999'), '0'), 15) AS "Monto Total Super Avances"
     
 FROM cliente c
-    
+    INNER JOIN region reg ON reg.cod_region = C.cod_region
+    INNER JOIN TARJETA_CLIENTE TC ON tc.numrun = c.numrun
+    INNER JOIN provincia prov ON prov.cod_provincia = c.cod_provincia
+                        AND prov.cod_region = c.cod_region
+    /*Para traer los null*/
+    LEFT JOIN transaccion_tarjeta_cliente ttc ON tc.nro_tarjeta = ttc.nro_tarjeta
     /*Como tienen llave compuesta se generan los duplicados*/
     /*Forma "Correcta"*/
-    INNER JOIN tarjeta_cliente tc ON c.numrun = tc.numrun
+    /*INNER JOIN tarjeta_cliente tc ON c.numrun = tc.numrun
     INNER JOIN transaccion_tarjeta_cliente ttc ON tc.nro_tarjeta = ttc.nro_tarjeta
     INNER JOIN sucursal_retail sr ON ttc.id_sucursal = sr.id_sucursal
     INNER JOIN comuna co ON sr.cod_region = co.cod_region
@@ -133,7 +138,7 @@ FROM cliente c
                         AND sr.cod_comuna = co.cod_comuna
     INNER JOIN provincia prov ON co.cod_provincia = prov.cod_provincia
                                 AND co.cod_region = prov.cod_region
-    INNER JOIN region reg ON prov.cod_region = reg.cod_region
+    INNER JOIN region reg ON prov.cod_region = reg.cod_region*/
 GROUP BY c.numrun, c.dvrun, c.pnombre, c.snombre, c.appaterno, c.apmaterno,c.direccion,
     prov.nombre_provincia,
     reg.nombre_region
@@ -148,28 +153,4 @@ select * from region;
 select * from comuna;
 select * from provincia;
 
------------------------
---CASO 6 INFORME 1
 
-SELECT TO_CHAR(C.NUMRUN,'09G999G999')||'-'||C.DVRUN AS "RUN CLIENTE",
-INITCAP(C.PNOMBRE||' '||CONCAT(SUBSTR(C.SNOMBRE,0,1),'.')||' '||C.APPATERNO||' '||C.APMATERNO) AS "NOMBRE CLIENTE",
-C.DIRECCION AS "DIRECCION",
-R.NOMBRE_REGION AS "REGION",
-COALESCE(COUNT(CASE WHEN TTC.COD_TPTRAN_TARJETA = 101 THEN TTC.NRO_TARJETA 
-                            ELSE null END), 0) as "COMPRAS VIGENTE",
-COALESCE(TO_CHAR(SUM(CASE WHEN TTC.COD_TPTRAN_TARJETA = 101 THEN TTC.MONTO_TOTAL_TRANSACCION 
-                            ELSE null END), 'L999g999g999'), '0') as "MONTO TOTAL COMPRA",
-COALESCE(COUNT(CASE WHEN TTC.COD_TPTRAN_TARJETA = 102 THEN TTC.NRO_TARJETA 
-                            ELSE null END), 0) as "AVANCE VIGENTE",
-COALESCE(TO_CHAR(SUM(CASE WHEN TTC.COD_TPTRAN_TARJETA = 102 THEN TTC.MONTO_TOTAL_TRANSACCION 
-                            ELSE null END), 'L999g999g999'), '0') as "MONTO TOTAL AVANCE",
-COALESCE(COUNT(CASE WHEN TTC.COD_TPTRAN_TARJETA = 103 THEN TTC.NRO_TARJETA 
-                            ELSE null END), 0) as "SUPER AVANCE VIGENTE",
-COALESCE(TO_CHAR(SUM(CASE WHEN TTC.COD_TPTRAN_TARJETA = 103 THEN TTC.MONTO_TOTAL_TRANSACCION  
-                            ELSE null END), 'L999g999g999'), '0') as "MONTO TOTAL S AVANCE"
-FROM CLIENTE C
-INNER JOIN REGION R ON R.COD_REGION = C.COD_REGION
-INNER JOIN TARJETA_CLIENTE TC ON TC.NUMRUN = C.NUMRUN
-LEFT JOIN TRANSACCION_TARJETA_CLIENTE TTC ON TTC.NRO_TARJETA = TC.NRO_TARJETA
-GROUP BY TO_CHAR(C.NUMRUN,'09G999G999')||'-'||DVRUN,PNOMBRE,SNOMBRE,APPATERNO,APMATERNO,C.DIRECCION,R.NOMBRE_REGION
-ORDER BY APPATERNO;
