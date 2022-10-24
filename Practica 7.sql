@@ -153,4 +153,47 @@ select * from region;
 select * from comuna;
 select * from provincia;
 
+/*INFORME 2*/
+SELECT sr.id_sucursal AS "Sucursal",
+    r.nombre_region AS "Region",
+    p.nombre_provincia AS "Provincia",
+    c.nombre_comuna AS "Comuna",
+    sr.direccion AS "Direccion",
+    /*101*/
+    COALESCE(COUNT(CASE ttc.cod_tptran_tarjeta
+        WHEN 101 THEN ttc.nro_tarjeta 
+        ELSE null END), 0) AS "Compras Vigintes",
+    LPAD(COALESCE(TO_CHAR(SUM(CASE ttc.cod_tptran_tarjeta 
+        WHEN 101 THEN ttc.monto_total_transaccion 
+        ELSE null END), '$999G999G999'), '0'), 20) AS "Monto Total Compra",
+    /*102*/
+    COALESCE(COUNT(CASE ttc.cod_tptran_tarjeta
+        WHEN 102 THEN ttc.nro_tarjeta
+        ELSE null END), 0) AS "Avance Vigente",
+    LPAD(COALESCE(TO_CHAR(SUM(CASE ttc.cod_tptran_tarjeta
+        WHEN 102 THEN ttc.monto_total_transaccion 
+        ELSE null END), '$999G999G999'), '0'), 20) AS "Monto Total Avance",
+    /*103*/
+    COALESCE(COUNT(CASE ttc.cod_tptran_tarjeta
+        WHEN 103 THEN ttc.nro_tarjeta
+        ELSE null END), 0) AS "Super Avance Vigente",
+    LPAD(COALESCE(TO_CHAR(SUM(CASE ttc.cod_tptran_tarjeta
+        WHEN 103 THEN ttc.monto_total_transaccion  
+        ELSE null END), '$999G999G999'), '0'),20) AS "Monto Total Super Avance"
+FROM sucursal_retail sr
+    LEFT JOIN transaccion_tarjeta_cliente ttc ON sr.id_sucursal = ttc.id_sucursal
+    JOIN region r ON r.cod_region = sr.cod_region
+    JOIN comuna c ON c.cod_comuna = sr.cod_comuna
+            AND C.cod_provincia = sr.cod_provincia
+            AND C.cod_region = sr.cod_region
+JOIN provincia p ON p.cod_provincia = sr.cod_provincia
+            AND p.cod_region = sr.cod_region
+GROUP BY sr.id_sucursal, r.nombre_region, sr.direccion, c.nombre_comuna, 
+    p.nombre_provincia
+ORDER BY r.nombre_region,sr.id_sucursal ASC
+;
+select * from sucursal_retail;
+select * from transaccion_tarjeta_cliente;
+select * from region;
+select * from comuna;
 
